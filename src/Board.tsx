@@ -1,65 +1,88 @@
-export const Board = ({
-  xIsNext,
-  squares,
-  onPlay,
-  size,
-}: {
-  size: number;
-  xIsNext: boolean;
-  squares: Array<'X' | 'O' | null>;
-  onPlay: (nextSquares: Array<'X' | 'O' | null>) => void;
-}) => {
-  const handleClick = (i: number) => {
-    if (calculateWinner(squares, size) || squares[i]) {
-      return;
+import { useEffect, useState } from 'react';
+import { twMerge } from 'tailwind-merge';
+
+export const Board = ({ n }: { n: number }) => {
+  const [board, setBoard] = useState<Array<Array<string>>>([]);
+  const [isXNext, setIsXNext] = useState(true);
+  const [winner, setWinner] = useState<string>();
+
+  const handleClick = (row: number, col: number) => {
+    if (board[row][col]) return;
+    if (winner) return;
+
+    const newBoard = board.map((r) => [...r]);
+    if (isXNext) {
+      newBoard[row][col] = 'X';
+    } else {
+      newBoard[row][col] = 'O';
     }
-    const nextSquares = squares.slice();
-    nextSquares[i] = xIsNext ? 'X' : 'O';
-    onPlay(nextSquares);
+    setBoard(newBoard);
+    setIsXNext(!isXNext);
+    setWinner(isWinner(newBoard));
   };
 
-  const winner = calculateWinner(squares, size);
-  const status = winner
-    ? `Winner: ${winner}`
-    : `Next player: ${xIsNext ? 'X' : 'O'}`;
+  const isWinner = (board: Array<Array<string>>) => {
+    const winnerRow = board.find(
+      (row) => row[0] && row.every((value) => value === row[0])
+    );
+    if (winnerRow) {
+      return winnerRow[0];
+    }
+
+    for (let col = 0; col < n; col++) {
+      const colValues = board.map((row) => row[col]);
+
+      if (colValues[0] && colValues.every((value) => value === colValues[0])) {
+        return colValues[0];
+      }
+    }
+
+    const mainDiagonal = board[0][0];
+    if (
+      mainDiagonal &&
+      board.every((row, index) => row[index] === mainDiagonal)
+    ) {
+      return mainDiagonal;
+    }
+
+    const secondaryDiagonal = board[0][n - 1];
+    if (
+      secondaryDiagonal &&
+      board.every((row, index) => row[n - 1 - index] === secondaryDiagonal)
+    ) {
+      return secondaryDiagonal;
+    }
+  };
+
+  useEffect(() => {
+    setBoard(
+      Array(n)
+        .fill(null)
+        .map(() => Array(n).fill(null))
+    );
+    setIsXNext(true);
+    setWinner(undefined);
+  }, [n]);
 
   return (
-    <div>
-      <div className="mb-4">{status}</div>
-      <div className="grid" style={{ gridTemplateColumns: `repeat(${size}, 1fr)`}}>
-        {squares.map((value, index) => (
-          //<Square key={index} value={value} onSquareClick={() => handleClick(index)} />
-          <button
-            className="border border-gray-500 w-10 h-10 text-2xl font-bold"
-            onClick={() => handleClick(index)}
-          >
-            {value}
-          </button>
-        ))}
-      </div>
+    <div className="grid" style={{ gridTemplateRows: `repeat(${n}, 1fr)` }}>
+      {board.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex justify-center items-center">
+          {row.map((value, colIndex) => (
+            <button
+              key={`${rowIndex} - ${colIndex}`}
+              className={twMerge(
+                'flex justify-center items-center w-16 h-16 border border-gray-300',
+                `${value ? 'bg-gray-300' : ''}`
+              )}
+              onClick={() => handleClick(rowIndex, colIndex)}
+            >
+              {value}
+            </button>
+          ))}
+        </div>
+      ))}
+      <div className='my-5'>Winner: {winner}</div>
     </div>
   );
-};
-
-const calculateWinner = (squares: (string | null)[], size: number) => {
-  const lines = [];
-  // Горизонтальные линии
-  for (let i = 0; i < size; i++) {
-    lines.push(Array.from({ length: size }, (_, j) => i * size + j));
-  }
-  // Вертикальные линии
-  for (let i = 0; i < size; i++) {
-    lines.push(Array.from({ length: size }, (_, j) => i + j * size));
-  }
-  // Диагонали
-  lines.push(Array.from({ length: size }, (_, i) => i * size + i));
-  lines.push(Array.from({ length: size }, (_, i) => (size - 1) * (i + 1)));
-
-  for (const line of lines) {
-    const [a, b, c] = line;
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
-    }
-  }
-  return null;
 };
