@@ -72,8 +72,8 @@ export const Board = ({ n }: { n: number }) => {
             <button
               key={`${rowIndex} - ${colIndex}`}
               className={twMerge(
-                'flex justify-center items-center w-16 h-16 border border-gray-300',
-                `${value ? 'bg-gray-300' : ''}`
+                'flex justify-center items-center w-16 h-16 border border-gray-300 bg-white',
+                `${value ? 'bg-green-100' : ''}`
               )}
               onClick={() => handleClick(rowIndex, colIndex)}
             >
