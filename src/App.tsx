@@ -5,7 +5,7 @@ import { Board } from './Board';
 
 function App() {
   const [size, setSize] = useState(3);
-  const [history, setHistory] = useState<Array<Array<string | null>>>([Array(9).fill(null)]);
+  const [history, setHistory] = useState<Array<Array<string | null>>>([Array(3 * 3).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove] as Array<'X' | 'O' | null>;
@@ -22,9 +22,10 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col p-10">
       <div className="flex flex-row">
         <input
+          min="3"
           value={size}
           onChange={(e) => setSize(Number(e.target.value))}
           className="border border-gray-300"
@@ -33,7 +34,7 @@ function App() {
       </div>
     <div className="flex">
       <div className="game-board">
-        Game board
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} size={size}/>
       </div>
     </div>
   </div>

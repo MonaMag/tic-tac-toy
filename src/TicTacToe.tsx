@@ -41,9 +41,9 @@ export const TicTacToe = ({ size }: { size: number }) => {
     const size = board.length;
     const lines: Array<{ winner: 'X' | 'O' | null; line: number[] }> = [];
 
-    // Проверка горизонталей и вертикалей
+   
     for (let i = 0; i < size; i++) {
-      // Горизонтальная проверка
+     
       if (board[i][0] && board[i].every((cell) => cell === board[i][0])) {
         const line = Array.from(
           { length: size },
