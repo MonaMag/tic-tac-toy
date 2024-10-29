@@ -17,6 +17,8 @@ export function Snake({
   });
   const [isGameStart, setIsGameStart] = useState(false);
   const [isAutoMove, setIsAutoMove] = useState(false);
+  const [hitCount, setHitCount] = useState(0);
+  const [gameOver, setGameOver] = useState(false);
 
   useEffect(() => {
     const initialSnake = Array.from({ length: snakeLength }, (_, index) => ({
@@ -37,6 +39,17 @@ export function Snake({
       y: head.y + direction.y,
     };
 
+    // if (
+    //   newHead.x < 0 ||
+    //   newHead.x >= cols ||
+    //   newHead.y < 0 ||
+    //   newHead.y >= rows ||
+    //   snake.some((part) => part.x === newHead.x && part.y === newHead.y)
+    // ) {
+    //   setIsGameStart(false);
+    //   return;
+    // }
+
     if (
       newHead.x < 0 ||
       newHead.x >= cols ||
@@ -44,14 +57,28 @@ export function Snake({
       newHead.y >= rows ||
       snake.some((part) => part.x === newHead.x && part.y === newHead.y)
     ) {
+      if (
+        newHead.x < 0 ||
+        newHead.x >= cols ||
+        newHead.y < 0 ||
+        newHead.y >= rows
+      ) {
+        setHitCount((prevHits) => prevHits + 1);
+      }
+
+      if (hitCount >= 9) {
+        setGameOver(true);
+        setIsGameStart(false);
+        return;
+      }
+
       setIsGameStart(false);
       return;
     }
-
     newSnake.unshift(newHead);
     newSnake.pop();
     setSnake(newSnake);
-  }, [cols, rows, snake, direction, isGameStart]);
+  }, [cols, rows, snake, direction, isGameStart, hitCount]);
 
   useEffect(() => {
     if (isAutoMove && isGameStart) {
@@ -105,7 +132,7 @@ export function Snake({
       </h2>
       <button
         onClick={toggleMode}
-        className="mb-2 w-20 px-4 py-1 bg-gray-400 text-white rounded"
+        className="mb-4 px-6 py-1 border border-blue-400  text- rounded"
       >
         {isAutoMove ? 'click' : 'auto'}
       </button>
@@ -137,6 +164,11 @@ export function Snake({
           })}
         </div>
       ))}
+      {gameOver && (
+        <div className="mt-4 px-6  text-red-400 text-lg">
+          Game over! You hit the border 10 times.
+        </div>
+      )}
     </div>
   );
 }
